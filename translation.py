@@ -1,5 +1,6 @@
 import torch
 from transformers import NllbTokenizer, AutoModelForSeq2SeqLM
+from sentence_splitter import SentenceSplitter
 MODEL_URL = 'slone/nllb-rus-tyv-v2-extvoc'
 LANGUAGES = {
     "Russian": "rus_Cyrl",
@@ -31,12 +32,42 @@ class Translator:
         self.model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_URL)
         if torch.cuda.is_available():
             self.model.cuda()
-        self.tokenizer = NllbTokenizer.from_pretrained(MODEL_URL, force_download=True)
+        self.tokenizer = NllbTokenizer.from_pretrained(MODEL_URL)
         fix_tokenizer(self.tokenizer)
+
+        self.splitter = SentenceSplitter("ru")
 
         self.languages = LANGUAGES
 
     def translate(
+        self,
+        text,
+        src_lang='rus_Cyrl',
+        tgt_lang='tyv_Cyrl',
+        max_length='auto',
+        num_beams=4,
+        no_repeat_ngram_size=4,
+        by_sentence=True,
+        separator="\n",
+        **kwargs
+    ):
+        """ Translate a text sentence by sentence """
+        results = []
+        if by_sentence:
+            sents = self.splitter.split(text)
+        else:
+            sents = [text]
+        for sent in sents:
+            results.append(self.translate_single(
+                sent,
+                src_lang=src_lang, tgt_lang=tgt_lang,
+                max_length=max_length,
+                num_beams=num_beams, no_repeat_ngram_size=no_repeat_ngram_size,
+                **kwargs
+            ))
+        return separator.join(results)
+
+    def translate_single(
         self,
         text,
         src_lang='rus_Cyrl',

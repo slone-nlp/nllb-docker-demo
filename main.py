@@ -6,7 +6,8 @@ from translation import Translator
 class TranslationRequest(BaseModel):
     text: str
     src_lang: str = 'rus_Cyrl'
-    tgt_lang = 'tyv_Cyrl'
+    tgt_lang: str = 'tyv_Cyrl'
+    by_sentence: bool = True
 
 
 app = FastAPI()
@@ -20,7 +21,12 @@ def translate(request: TranslationRequest):
     The language codes are supposed to be in 8-letter format, like "eng_Latn".
     Their list can be returned by /list-languages.
     """
-    output = translator.translate(request.text, src_lang=request.src_lang, tgt_lang=request.tgt_lang)
+    output = translator.translate(
+        request.text,
+        src_lang=request.src_lang,
+        tgt_lang=request.tgt_lang,
+        by_sentence=request.by_sentence,
+    )
     return {"translation": output}
 
 
