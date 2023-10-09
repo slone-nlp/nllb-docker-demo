@@ -4,4 +4,5 @@ sentencepiece==0.1.*
 torch==1.11.*
 transformers==4.33.*
 uvicorn[standard]==0.17.*
-sentence-splitter
+sentence-splitter==1.4
+sacremoses== 0.0.45

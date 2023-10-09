@@ -1,13 +1,15 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+
 from translation import Translator
 
 
 class TranslationRequest(BaseModel):
     text: str
-    src_lang: str = 'rus_Cyrl'
-    tgt_lang: str = 'tyv_Cyrl'
+    src_lang: str = "rus_Cyrl"
+    tgt_lang: str = "tyv_Cyrl"
     by_sentence: bool = True
+    preprocess: bool = True
 
 
 app = FastAPI()
@@ -26,6 +28,7 @@ def translate(request: TranslationRequest):
         src_lang=request.src_lang,
         tgt_lang=request.tgt_lang,
         by_sentence=request.by_sentence,
+        preprocess=request.preprocess,
     )
     return {"translation": output}
 
