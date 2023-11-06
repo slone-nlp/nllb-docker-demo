@@ -9,9 +9,11 @@ from sentence_splitter import SentenceSplitter
 from transformers import AutoModelForSeq2SeqLM, NllbTokenizer
 
 MODEL_URL = "slone/nllb-rus-tyv-v2-extvoc"
+L1 = "rus_Cyrl"
+L2 = "myv_Cyrl"
 LANGUAGES = {
-    "Орус | Русский | Russian": "rus_Cyrl",
-    "Тыва | Тувинский | Tyvan": "tyv_Cyrl",
+    "Орус | Русский | Russian": L1,
+    "Тыва | Тувинский | Tyvan": L2,
 }
 
 
@@ -52,7 +54,7 @@ class TextPreprocessor:
         return clean
 
 
-def fix_tokenizer(tokenizer, new_lang="tyv_Cyrl"):
+def fix_tokenizer(tokenizer, new_lang=L2):
     """Add a new language token to the tokenizer vocabulary
     (this should be done each time after its initialization)
     """
@@ -98,7 +100,7 @@ def sentenize_with_fillers(text, splitter, fix_double_space=True, ignore_errors=
 
 class Translator:
     def __init__(self):
-        self.model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_URL)
+        self.model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_URL, low_cpu_mem_usage=True)
         if torch.cuda.is_available():
             self.model.cuda()
         self.tokenizer = NllbTokenizer.from_pretrained(MODEL_URL)
@@ -112,8 +114,8 @@ class Translator:
     def translate(
         self,
         text,
-        src_lang="rus_Cyrl",
-        tgt_lang="tyv_Cyrl",
+        src_lang=L1,
+        tgt_lang=L2,
         max_length="auto",
         num_beams=4,
         by_sentence=True,
@@ -149,8 +151,8 @@ class Translator:
     def translate_single(
         self,
         text,
-        src_lang="rus_Cyrl",
-        tgt_lang="tyv_Cyrl",
+        src_lang=L1,
+        tgt_lang=L2,
         max_length="auto",
         num_beams=4,
         n_out=None,
